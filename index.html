@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Ahmad Khan's student portfolio and game development project, Zombie Escape.">
+  <title>Ahmad Khan | Portfolio</title>
+  <style>
+    :root {
+      --bg: #08111d; --panel: #101e2d; --panel2: #142638;
+      --line: #263c50; --text: #edf5fb; --muted: #a8bac9;
+      --cyan: #71d8e8; --green: #80e0ad; --gold: #ffd477;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Arial, sans-serif;
+      background: radial-gradient(ellipse at 50% -15%, #1b3b50 0, #0b1724 45%, var(--bg) 80%);
+      line-height: 1.65;
+    }
+    a { color: inherit; }
+    .wrap { width: min(1050px, calc(100% - 36px)); margin: auto; }
+    header { padding: 22px 0; border-bottom: 1px solid #ffffff12; }
+    nav { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .brand { font-weight: 850; letter-spacing: .04em; }
+    .brand span { color: var(--cyan); }
+    nav a { color: var(--muted); text-decoration: none; margin-left: 20px; font-size: .94rem; }
+    nav a:hover { color: var(--cyan); }
+    .hero { padding: 86px 0 70px; }
+    .eyebrow { color: var(--green); text-transform: uppercase; letter-spacing: .16em; font-size: .78rem; font-weight: 800; }
+    h1 { font-size: clamp(2.6rem, 7vw, 5rem); line-height: 1.04; letter-spacing: -.045em; margin: 14px 0; }
+    h1 span { color: var(--cyan); }
+    .intro { max-width: 680px; color: var(--muted); font-size: 1.1rem; }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 11px 18px; border-radius: 10px; text-decoration: none;
+      font-weight: 750; border: 1px solid var(--line); background: var(--panel2);
+    }
+    .btn.primary { color: #06131a; background: var(--cyan); border-color: var(--cyan); }
+    .btn:hover { transform: translateY(-2px); filter: brightness(1.08); }
+    section { padding: 36px 0 58px; }
+    .section-kicker { color: var(--green); font-size: .78rem; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; }
+    h2 { font-size: clamp(1.8rem, 4vw, 2.5rem); margin: 8px 0 20px; letter-spacing: -.03em; }
+    .card {
+      border: 1px solid var(--line); border-radius: 18px; overflow: hidden;
+      background: linear-gradient(145deg, #142638, #0d1926);
+      box-shadow: 0 20px 55px #0003;
+    }
+    .project-top {
+      min-height: 190px; padding: 28px;
+      background:
+        radial-gradient(circle at 80% 35%, #275b62 0, transparent 30%),
+        linear-gradient(120deg, #142b3c, #0c1723);
+      display: flex; align-items: end; justify-content: space-between; gap: 20px;
+    }
+    .project-icon { font-size: 3.2rem; }
+    .project-top h3 { font-size: 1.8rem; margin: 0; }
+    .project-top p { margin: 4px 0 0; color: var(--muted); }
+    .project-body { padding: 26px 28px 30px; }
+    .project-body p { color: var(--muted); max-width: 780px; }
+    .features { display: flex; flex-wrap: wrap; gap: 9px; margin: 18px 0 24px; }
+    .tag { border: 1px solid #345269; background: #102333; color: #c8e7ef; padding: 5px 10px; border-radius: 999px; font-size: .85rem; }
+    .project-links { display: flex; flex-wrap: wrap; gap: 10px; }
+    .note { color: var(--muted); font-size: .9rem; margin-top: 16px; }
+    .about-card { padding: 24px 26px; }
+    .about-card p { color: var(--muted); margin: 0; }
+    footer { border-top: 1px solid #ffffff12; color: var(--muted); padding: 25px 0 35px; font-size: .9rem; }
+    @media (max-width: 600px) {
+      nav { align-items: flex-start; flex-direction: column; }
+      nav a { margin: 0 16px 0 0; }
+      .hero { padding: 60px 0 42px; }
+      .project-top { align-items: flex-start; flex-direction: column; }
+      .project-body, .project-top { padding: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <nav aria-label="Main navigation">
+        <div class="brand">AHMAD <span>KHAN</span></div>
+        <div>
+          <a href="#about">About</a>
+          <a href="#projects">Projects</a>
+          <a href="#contact">Links</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap">
+      <section class="hero" id="home">
+        <div class="eyebrow">Student Portfolio</div>
+        <h1>Hi, I'm <span>Ahmad Khan.</span></h1>
+        <p class="intro">
+          I'm a student at Dong-A University in Busan, South Korea, studying
+          Integrated Business Management. I enjoy learning, exploring ideas,
+          and building projects.
+        </p>
+        <div class="actions">
+          <a class="btn primary" href="#projects">Explore My Project</a>
+          <a class="btn" href="https://docs.google.com/document/d/1S2ZpKWxIhslmGf-LpKL8EPWQ8eIUp0KRM1-OF6mWP8s/edit?usp=drivesdk" target="_blank" rel="noopener noreferrer">Open Game Document</a>
+        </div>
+      </section>
+
+      <section id="about">
+        <div class="section-kicker">A little about me</div>
+        <h2>About</h2>
+        <div class="card about-card">
+          <p>
+            I am currently studying Integrated Business Management at
+            Dong-A University. This portfolio brings together my learning
+            and project work, including my 2D game project, Zombie Escape.
+          </p>
+        </div>
+      </section>
+
+      <section id="projects">
+        <div class="section-kicker">Selected work</div>
+        <h2>My Projects</h2>
+        <article class="card">
+          <div class="project-top">
+            <div>
+              <div class="project-icon" aria-hidden="true">☣️</div>
+              <h3>Zombie Escape</h3>
+              <p>2D city survival and puzzle game</p>
+            </div>
+            <span class="tag">HTML · CSS · JavaScript</span>
+          </div>
+          <div class="project-body">
+            <p>
+              Zombie Escape is an original browser game. Explore a city,
+              collect energy packs and supplies, find a clue, solve the
+              power-grid sequence, unlock the safe house, and reach the exit
+              before the countdown ends.
+            </p>
+            <div class="features">
+              <span class="tag">Tile-based city map</span>
+              <span class="tag">Exploration</span>
+              <span class="tag">Resource collection</span>
+              <span class="tag">Power-grid puzzle</span>
+              <span class="tag">3-minute challenge</span>
+              <span class="tag">Survival tools</span>
+            </div>
+            <div class="project-links">
+              <a class="btn primary" href="./Zombiescape.html">▶ Play Zombie Escape</a>
+              <a class="btn" href="https://docs.google.com/document/d/1S2ZpKWxIhslmGf-LpKL8EPWQ8eIUp0KRM1-OF6mWP8s/edit?usp=drivesdk" target="_blank" rel="noopener noreferrer">📄 View Game Documentation</a>
+              <a class="btn" href="./Zombiescape.html" download>↓ Download Game File</a>
+            </div>
+            <p class="note">
+              To make the Play button work on GitHub Pages, keep
+              <strong>index.html</strong> and <strong>Zombiescape.html</strong>
+              together in the same published folder.
+            </p>
+          </div>
+        </article>
+      </section>
+
+      <section id="contact">
+        <div class="section-kicker">Find the project</div>
+        <h2>Project Links</h2>
+        <div class="actions">
+          <a class="btn primary" href="https://abdaliahmadkhan0-ux.github.io/" target="_blank" rel="noopener noreferrer">Portfolio Home</a>
+          <a class="btn" href="https://docs.google.com/document/d/1S2ZpKWxIhslmGf-LpKL8EPWQ8eIUp0KRM1-OF6mWP8s/edit?usp=drivesdk" target="_blank" rel="noopener noreferrer">Game Documentation</a>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <div class="wrap">© <span id="year"></span> Ahmad Khan · Student Portfolio</div>
+  </footer>
+  <script>document.getElementById("year").textContent = new Date().getFullYear();</script>
+</body>
+</html>

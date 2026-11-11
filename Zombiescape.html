@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zombie Escape</title>
+<style>
+:root{--bg:#080d13;--panel:#111b25;--panel2:#172431;--line:#2a3a48;--text:#e9f1f5;--muted:#9db0bd;--green:#79e0a3;--cyan:#67d8e8;--red:#ff7272;--gold:#ffd166}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(circle at 50% 0%,#1b2b36 0,#0b121a 48%,#070b10 100%);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;min-height:100vh;padding:18px}
+button{font:inherit;cursor:pointer;border:1px solid #426072;border-radius:10px;padding:10px 15px;background:#1c3544;color:var(--text);font-weight:700}
+button:hover{filter:brightness(1.18)}
+button:disabled{opacity:.45;cursor:not-allowed}
+.app{max-width:1120px;margin:0 auto}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(145deg,#24564c,#162b38);border:1px solid #477568;font-size:24px}
+h1{font-size:clamp(22px,4vw,32px);margin:0;letter-spacing:1px}
+.subtitle{color:var(--muted);font-size:13px;margin-top:2px}
+.header-actions{display:flex;gap:8px;flex-wrap:wrap}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:14px;align-items:start}
+.game-card,.side-card{background:linear-gradient(180deg,#13202b,#0f1922);border:1px solid var(--line);border-radius:16px;box-shadow:0 18px 50px #0005}
+.game-card{padding:12px}
+.canvas-wrap{position:relative;background:#080e13;border-radius:10px;overflow:hidden;border:1px solid #30434f}
+canvas{display:block;width:100%;height:auto;image-rendering:pixelated;touch-action:none}
+#overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#071019df;padding:18px;text-align:center}
+.overlay-box{max-width:460px;background:#14232e;border:1px solid #3a5967;border-radius:16px;padding:24px;box-shadow:0 20px 70px #0009}
+.overlay-box h2{font-size:27px;margin:0 0 8px}
+.overlay-box p{color:#c1d0d8;line-height:1.5}
+.overlay-box .big{font-size:42px;margin-bottom:8px}
+.overlay-box button{margin-top:8px;background:#1c624d;border-color:#4eaa83}
+.hud{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.stat{background:#0b141c;border:1px solid #263846;border-radius:10px;padding:9px 10px;min-width:0}
+.stat-label{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted)}
+.stat-value{font-size:19px;font-weight:800;margin-top:2px;white-space:nowrap}
+.health-track{height:7px;background:#29343c;border-radius:8px;margin-top:6px;overflow:hidden}
+.health-fill{height:100%;width:100%;background:linear-gradient(90deg,#e85f68,#f2a35e);transition:width .15s}
+.side-card{padding:14px;margin-bottom:12px}
+.side-card h3{margin:0 0 11px;font-size:15px;letter-spacing:.3px}
+.objective{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid #263541;font-size:13px}
+.objective:last-child{border-bottom:0}
+.count{font-weight:800;color:var(--green)}
+.inventory{display:grid;gap:8px}
+.tool{padding:9px;border:1px solid #2b414e;border-radius:10px;background:#0c1720;font-size:13px}
+.tool.selected{border-color:var(--gold);box-shadow:inset 0 0 0 1px #ffd16655}
+.tool strong{display:block;margin-bottom:3px}
+.tool small{color:var(--muted)}
+.key{display:inline-block;border:1px solid #516574;border-bottom-width:3px;border-radius:5px;padding:1px 6px;color:#fff;font-size:11px;font-weight:800;background:#1c2b36}
+.controls{font-size:12px;color:#c2d0d8;line-height:1.8}
+.controls div{margin:3px 0}
+.tip{font-size:12px;line-height:1.5;color:#a9bdc8;background:#0c1720;border-radius:9px;padding:10px;margin-top:10px}
+#message{min-height:22px;margin:9px 2px 0;color:#a9d9c0;font-size:13px}
+.puzzle{position:absolute;inset:0;background:#071019ed;display:none;align-items:center;justify-content:center;padding:14px}
+.puzzle-box{width:min(430px,100%);background:#14232e;border:1px solid #4a6978;border-radius:15px;padding:18px;text-align:center}
+.puzzle-box h2{margin:0 0 6px}
+.puzzle-box p{font-size:13px;color:#b9cbd4;line-height:1.5}
+.sequence{min-height:36px;letter-spacing:9px;font-size:22px;font-weight:900;color:var(--gold);margin:10px}
+.symbols{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.symbols button{font-size:24px;padding:12px 4px;background:#203747}
+#puzzleStatus{min-height:20px;font-size:13px;color:var(--gold);margin:9px}
+.puzzle-actions{display:flex;gap:8px;justify-content:center}
+.secondary{background:#25313a}
+@media(max-width:850px){.layout{grid-template-columns:1fr}.side-column{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.side-card{margin:0}.side-card:last-child{grid-column:1/-1}}
+@media(max-width:560px){body{padding:9px}.layout{gap:9px}.game-card{padding:7px}.hud{grid-template-columns:repeat(2,1fr)}.side-column{grid-template-columns:1fr}.side-card:last-child{grid-column:auto}header{align-items:flex-start}.header-actions button{padding:8px 10px;font-size:12px}.subtitle{max-width:220px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="brand"><div class="logo">☣</div><div><h1>ZOMBIE ESCAPE</h1><div class="subtitle">Explore. Collect. Restore power. Get out alive.</div></div></div>
+  <div class="header-actions"><button id="pauseBtn" class="secondary" disabled>Pause</button><button id="restartBtn" class="secondary">Restart</button></div>
+</header>
+<div class="layout">
+  <main class="game-card">
+    <div class="canvas-wrap">
+      <canvas id="game" width="640" height="480" aria-label="Zombie Escape city map"></canvas>
+      <div id="overlay">
+        <div class="overlay-box">
+          <div class="big">☣️</div><h2 id="overlayTitle">The city has fallen.</h2>
+          <p id="overlayText">Collect 3 energy packs and 2 supply boxes. Find the clue, solve the power-grid sequence, unlock the safe house, and reach the exit before 03:00.</p>
+          <p><b>Move:</b> Arrow keys &nbsp; <b>Tools:</b> 1 / 2 + Space</p>
+          <button id="startBtn">Start Escape</button>
+        </div>
+      </div>
+      <div class="puzzle" id="puzzle">
+        <div class="puzzle-box">
+          <h2>⚡ Power-grid control</h2>
+          <p id="puzzleClue">Use the clue found in the city to enter the four-symbol sequence.</p>
+          <div class="sequence" id="sequence">_ _ _ _</div>
+          <div class="symbols">
+            <button data-symbol="⚡" aria-label="Lightning">⚡</button>
+            <button data-symbol="●" aria-label="Circle">●</button>
+            <button data-symbol="▲" aria-label="Triangle">▲</button>
+            <button data-symbol="■" aria-label="Square">■</button>
+          </div>
+          <div id="puzzleStatus">Attempts remaining: 3</div>
+          <div class="puzzle-actions"><button id="submitPuzzle">Submit sequence</button><button id="clearPuzzle" class="secondary">Clear</button></div>
+        </div>
+      </div>
+    </div>
+    <div class="hud">
+      <div class="stat"><div class="stat-label">Health</div><div class="stat-value"><span id="healthText">100</span> / 100</div><div class="health-track"><div class="health-fill" id="healthFill"></div></div></div>
+      <div class="stat"><div class="stat-label">Time left</div><div class="stat-value" id="timer">03:00</div></div>
+      <div class="stat"><div class="stat-label">Score</div><div class="stat-value" id="score">0</div></div>
+      <div class="stat"><div class="stat-label">Power grid</div><div class="stat-value" id="gridStatus">OFFLINE</div></div>
+    </div>
+    <div id="message" role="status">Find the clue before using the control panel.</div>
+  </main>
+  <aside class="side-column">
+    <section class="side-card">
+      <h3>MISSION OBJECTIVES</h3>
+      <div class="objective"><span>Energy packs</span><span class="count" id="energyCount">0 / 3</span></div>
+      <div class="objective"><span>Supply boxes</span><span class="count" id="supplyCount">0 / 2</span></div>
+      <div class="objective"><span>Power clue</span><span class="count" id="clueStatus">NOT FOUND</span></div>
+      <div class="objective"><span>Safe house</span><span class="count" id="doorStatus">LOCKED</span></div>
+      <div class="tip" id="objectiveTip">Explore the streets. The clue is marked with a note icon.</div>
+    </section>
+    <section class="side-card">
+      <h3>INVENTORY</h3>
+      <div class="inventory">
+        <div class="tool" id="medTool"><strong><span class="key">1</span> Medkit</strong><small id="medStatus">Not collected</small></div>
+        <div class="tool" id="decoyTool"><strong><span class="key">2</span> Distraction device</strong><small id="decoyStatus">Not collected</small></div>
+      </div>
+      <div class="tip">Select a tool with 1 or 2, then press <span class="key">Space</span> to use it. The medkit is saved if your health is full.</div>
+    </section>
+    <section class="side-card">
+      <h3>CONTROLS & FIELD NOTES</h3>
+      <div class="controls">
+        <div><span class="key">↑</span> <span class="key">↓</span> <span class="key">←</span> <span class="key">→</span> Move one tile</div>
+        <div><span class="key">1</span> Select medkit</div>
+        <div><span class="key">2</span> Select distraction device</div>
+        <div><span class="key">Space</span> Use selected tool</div>
+        <div><span class="key">P</span> Pause / resume</div>
+        <div><span class="key">E</span> Interact with control panel</div>
+      </div>
+      <div class="tip">Zombies notice you within 4 tiles. Use alleys and obstacles to break their path. A distraction lasts 5 seconds.</div>
+    </section>
+  </aside>
+</div>
+</div>
+<script>
+(() => {
+"use strict";
+const canvas=document.getElementById("game"),ctx=canvas.getContext("2d");
+const W=20,H=15,T=32;
+const $=id=>document.getElementById(id);
+const symbols=["⚡","●","▲","■"];
+// 0 = street, 1 = solid building/wall, 2 = car/roadblock
+const map=Array.from({length:H},()=>Array(W).fill(0));
+function blockRect(x,y,w,h,type=1){for(let yy=y;yy<y+h;yy++)for(let xx=x;xx<x+w;xx++)if(xx>=0&&xx<W&&yy>=0&&yy<H)map[yy][xx]=type;}
+// Buildings leave connected streets and narrow alley gaps.
+blockRect(3,0,3,3); blockRect(8,0,3,2); blockRect(14,0,3,3);
+blockRect(0,5,3,3); blockRect(5,5,3,4); blockRect(11,4,3,4); blockRect(17,5,3,3);
+blockRect(2,11,4,3); blockRect(8,10,3,3); blockRect(14,11,3,3);
+blockRect(6,2,1,2,2); blockRect(12,1,1,2,2); blockRect(16,9,2,1,2);
+const player={x:1,y:1,health:100,lastDamage:0,lastMove:0};
+const energy=[{x:7,y:3,got:false},{x:10,y:8,got:false},{x:18,y:3,got:false}];
+const supplies=[{x:4,y:9,type:"med",got:false},{x:15,y:9,type:"decoy",got:false}];
+const clue={x:7,y:13,got:false};
+const panel={x:18,y:10};
+const safe={x:18,y:13,unlocked:false};
+const zombies=[
+ {x:9,y:4,patrol:[{x:9,y:4},{x:10,y:4},{x:10,y:5},{x:9,y:5}],pi:0,stepAt:0},
+ {x:15,y:6,patrol:[{x:15,y:6},{x:16,y:6},{x:16,y:7},{x:15,y:7}],pi:0,stepAt:0},
+ {x:5,y:10,patrol:[{x:5,y:10},{x:6,y:10},{x:6,y:9},{x:5,y:9}],pi:0,stepAt:0}
+];
+let state="start",timeLeft=180,score=0,selected=0,medkit=false,decoy=false,medUsed=false,decoyUsed=false;
+let puzzleAttempts=3,puzzleInput=[],puzzleOpen=false,panelLocked=false,damageFlash=0,lure=null,lureUntil=0,lastFrame=0,lastSecond=0;
+const correctSequence=["⚡","▲","●","■"];
+const keyState={};
+function passable(x,y){return x>=0&&x<W&&y>=0&&y<H&&map[y][x]===0&&!(x===safe.x&&y===safe.y&&!safe.unlocked);}
+function same(a,b){return a.x===b.x&&a.y===b.y;}
+function setMessage(s){$("message").textContent=s;}
+function updateUI(){
+ $("healthText").textContent=player.health;$("healthFill").style.width=player.health+"%";
+ $("timer").textContent=String(Math.floor(timeLeft/60)).padStart(2,"0")+":"+String(Math.ceil(timeLeft%60)).padStart(2,"0");
+ $("timer").style.color=timeLeft<=30?"#ff7777":"";
+ $("score").textContent=score;
+ $("energyCount").textContent=energy.filter(o=>o.got).length+" / 3";
+ $("supplyCount").textContent=supplies.filter(o=>o.got).length+" / 2";
+ $("clueStatus").textContent=clue.got?"FOUND":"NOT FOUND";
+ $("clueStatus").style.color=clue.got?"var(--green)":"";
+ $("doorStatus").textContent=safe.unlocked?"UNLOCKED":"LOCKED";
+ $("gridStatus").textContent=safe.unlocked?"ONLINE":"OFFLINE";
+ $("medStatus").textContent=!medkit?"Not collected":medUsed?"Used":"Ready";
+ $("decoyStatus").textContent=!decoy?"Not collected":decoyUsed?"Used":"Ready";
+ $("medTool").classList.toggle("selected",selected===1);
+ $("decoyTool").classList.toggle("selected",selected===2);
+ $("pauseBtn").disabled=!(state==="playing"||state==="paused");
+ $("pauseBtn").textContent=state==="paused"?"Resume":"Pause";
+}
+function drawTile(x,y){
+ const v=map[y][x],px=x*T,py=y*T;
+ ctx.fillStyle=((x+y)%2===0)?"#182b32":"#1b3036";ctx.fillRect(px,py,T,T);
+ ctx.strokeStyle="#243a40";ctx.lineWidth=.6;ctx.strokeRect(px+.5,py+.5,T-1,T-1);
+ if(v===1){ctx.fillStyle="#26343a";ctx.fillRect(px+2,py+2,T-4,T-4);ctx.fillStyle="#34464b";ctx.fillRect(px+5,py+5,T-10,5);ctx.fillStyle="#1a262c";ctx.fillRect(px+5,py+14,T-10,T-19);}
+ if(v===2){ctx.fillStyle="#6d5942";ctx.fillRect(px+5,py+7,T-10,T-14);ctx.fillStyle="#17232a";ctx.fillRect(px+7,py+5,6,4);ctx.fillRect(px+19,py+5,6,4);ctx.fillRect(px+7,py+23,6,4);ctx.fillRect(px+19,py+23,6,4);}
+ // subtle street markings
+ if(v===0&&y%5===2&&x%5===2){ctx.fillStyle="#48605a";ctx.fillRect(px+13,py+15,6,2);}
+}
+function draw(){
+ ctx.clearRect(0,0,canvas.width,canvas.height);
+ for(let y=0;y<H;y++)for(let x=0;x<W;x++)drawTile(x,y);
+ // Safe house
+ ctx.fillStyle="#274e47";ctx.fillRect(safe.x*T+2,safe.y*T+2,T-4,T-4);
+ ctx.fillStyle="#b8e6ca";ctx.font="18px sans-serif";ctx.textAlign="center";ctx.fillText("⌂",safe.x*T+16,safe.y*T+22);
+ ctx.fillStyle=safe.unlocked?"#7bf0a6":"#ffb45f";ctx.fillRect(safe.x*T+23,safe.y*T+10,5,13);
+ // Panel
+ ctx.fillStyle="#334d60";ctx.fillRect(panel.x*T+5,panel.y*T+5,22,22);ctx.fillStyle="#77dff0";ctx.font="17px sans-serif";ctx.fillText("⚡",panel.x*T+16,panel.y*T+22);
+ // Energy packs
+ energy.forEach(o=>{if(!o.got){ctx.fillStyle="#f4cf59";ctx.beginPath();ctx.arc(o.x*T+16,o.y*T+16,9,0,Math.PI*2);ctx.fill();ctx.fillStyle="#493c1b";ctx.font="bold 15px sans-serif";ctx.fillText("ϟ",o.x*T+16,o.y*T+21);}});
+ // Supplies
+ supplies.forEach(o=>{if(!o.got){ctx.fillStyle=o.type==="med"?"#e6f0e9":"#dfaa68";ctx.fillRect(o.x*T+6,o.y*T+7,20,18);ctx.fillStyle="#263b3c";ctx.font="bold 15px sans-serif";ctx.fillText(o.type==="med"?"+":"!",o.x*T+16,o.y*T+22);}});
+ // clue
+ if(!clue.got){ctx.fillStyle="#d9e8f0";ctx.fillRect(clue.x*T+7,clue.y*T+5,18,22);ctx.fillStyle="#415a69";ctx.font="bold 13px sans-serif";ctx.fillText("?",clue.x*T+16,clue.y*T+21);}
+ // Lure marker
+ if(lure){ctx.strokeStyle="#ffcf70";ctx.lineWidth=2;ctx.beginPath();ctx.arc(lure.x*T+16,lure.y*T+16,12,0,Math.PI*2);ctx.stroke();ctx.fillStyle="#ffcf70";ctx.font="12px sans-serif";ctx.fillText("♪",lure.x*T+16,lure.y*T+5);}
+ // zombies
+ zombies.forEach(z=>{ctx.fillStyle="#a9d17a";ctx.beginPath();ctx.arc(z.x*T+16,z.y*T+16,11,0,Math.PI*2);ctx.fill();ctx.fillStyle="#26362b";ctx.fillRect(z.x*T+10,z.y*T+12,4,3);ctx.fillRect(z.x*T+19,z.y*T+12,4,3);ctx.fillStyle="#f2f4e8";ctx.fillRect(z.x*T+12,z.y*T+21,9,2);});
+ // player
+ ctx.fillStyle=damageFlash>0?"#ff7777":"#72c8ee";ctx.beginPath();ctx.arc(player.x*T+16,player.y*T+16,11,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle="#102631";ctx.fillRect(player.x*T+11,player.y*T+12,10,8);ctx.fillStyle="#e7f7ff";ctx.fillRect(player.x*T+12,player.y*T+13,3,3);ctx.fillRect(player.x*T+18,player.y*T+13,3,3);
+ ctx.textAlign="left";
+}
+function bfsNext(sx,sy,tx,ty){
+ const q=[{x:sx,y:sy}],seen=new Set([sx+","+sy]),prev=new Map();let found=false;
+ while(q.length){const p=q.shift();if(p.x===tx&&p.y===ty){found=true;break;}
+  for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){const nx=p.x+dx,ny=p.y+dy,k=nx+","+ny;if(!seen.has(k)&&passable(nx,ny)){seen.add(k);prev.set(k,p.x+","+p.y);q.push({x:nx,y:ny});}}
+ }
+ if(!found)return null;let cur=tx+","+ty,first=cur;while(prev.has(cur)){first=cur;cur=prev.get(cur);if(cur===sx+","+sy)break;}const [x,y]=first.split(",").map(Number);return {x,y};
+}
+function movePlayer(dx,dy,now){
+ if(state!=="playing"||puzzleOpen||now-player.lastMove<135)return;
+ player.lastMove=now;const nx=player.x+dx,ny=player.y+dy;
+ if(!passable(nx,ny)){setMessage("Blocked. Find another route.");return;}
+ const wasAtPanel=same(player,panel);player.x=nx;player.y=ny;if(wasAtPanel&&panelLocked){panelLocked=false;puzzleAttempts=3;setMessage("You stepped away. The control panel is ready for another attempt.");}checkPickups();checkPanelProximity();checkExit();
+}
+function checkPickups(){
+ energy.forEach(o=>{if(!o.got&&same(player,o)){o.got=true;score+=100;setMessage("Energy pack collected. +100 points.");}});
+ supplies.forEach(o=>{if(!o.got&&same(player,o)){o.got=true;score+=150;if(o.type==="med")medkit=true;else decoy=true;setMessage((o.type==="med"?"Medkit":"Distraction device")+" collected. +150 points.");}});
+ if(!clue.got&&same(player,clue)){clue.got=true;setMessage("Clue found: ⚡ comes first, ▲ second, ● third, ■ last.");$("objectiveTip").textContent="Clue: Lightning → Triangle → Circle → Square. Reach the control panel when all items are collected.";}
+ updateUI();
+}
+function requirementsMet(){return energy.every(o=>o.got)&&supplies.every(o=>o.got)&&clue.got;}
+function checkPanelProximity(){if(same(player,panel)&&!safe.unlocked){if(requirementsMet())setMessage("You are at the control panel. Press E to restore power.");else setMessage("Control panel: collect all 3 energy packs, both supply boxes, and the clue first.");}}
+function openPuzzle(){
+ if(state!=="playing"||safe.unlocked)return;
+ if(!same(player,panel)){setMessage("Move onto the ⚡ control panel tile first.");return;}
+ if(!requirementsMet()){setMessage("Required items or clue are still missing.");return;}
+ if(panelLocked){setMessage("Step away from the panel and return to try again.");return;}
+ puzzleOpen=true;puzzleInput=[];$("sequence").textContent="_ _ _ _";$("puzzleStatus").textContent="Attempts remaining: "+puzzleAttempts;$("puzzleClue").textContent="Clue: Lightning first, triangle second, circle third, square last. Enter the sequence.";
+ $("puzzle").style.display="flex";updateUI();
+}
+function closePuzzle(){puzzleOpen=false;$("puzzle").style.display="none";}
+function submitPuzzle(){
+ if(puzzleInput.length!==4){$("puzzleStatus").textContent="Choose four symbols before submitting.";return;}
+ if(puzzleInput.every((s,i)=>s===correctSequence[i])){
+  safe.unlocked=true;score+=200;closePuzzle();setMessage("Power restored! Safe-house door unlocked. Reach the exit tile.");updateUI();return;
+ }
+ puzzleAttempts--;puzzleInput=[];$("sequence").textContent="_ _ _ _";
+ if(puzzleAttempts<=0){panelLocked=true;closePuzzle();setMessage("Three attempts used. Step away from the panel and return to try again.");}
+ else $("puzzleStatus").textContent="Incorrect sequence. Attempts remaining: "+puzzleAttempts;
+}
+function checkExit(){if(same(player,safe)){if(safe.unlocked&&timeLeft>0&&player.health>0&&requirementsMet()){score+=500+Math.ceil(timeLeft)*10;endGame("win","Safe house reached! You escaped the city.");}else if(!safe.unlocked)setMessage("The safe house is still locked.");}}
+function useTool(){
+ if(state!=="playing"||puzzleOpen)return;
+ if(selected===1){if(!medkit){setMessage("You have not collected a medkit.");return;}if(medUsed){setMessage("The medkit has already been used.");return;}if(player.health>=100){setMessage("Health is full. The medkit is saved for later.");return;}player.health=Math.min(100,player.health+30);medUsed=true;setMessage("Medkit used. +30 health.");}
+ else if(selected===2){if(!decoy){setMessage("You have not collected a distraction device.");return;}if(decoyUsed){setMessage("The distraction device has already been used.");return;}lure={x:player.x,y:player.y};lureUntil=performance.now()+5000;decoyUsed=true;setMessage("Distraction activated. Nearby zombies are drawn to this spot for 5 seconds.");}
+ updateUI();
+}
+function zombieUpdate(now){
+ if(state!=="playing"||puzzleOpen)return;
+ if(lure&&now>lureUntil)lure=null;
+ zombies.forEach(z=>{
+  if(now-z.stepAt<650)return;z.stepAt=now;
+  const target=lure||player;
+  const dist=Math.abs(z.x-player.x)+Math.abs(z.y-player.y);
+  if(!lure&&dist>4){const p=z.patrol[z.pi];if(same(z,p))z.pi=(z.pi+1)%z.patrol.length;const next=z.patrol[z.pi];if(passable(next.x,next.y)){z.x=next.x;z.y=next.y;}else{z.pi=(z.pi+1)%z.patrol.length;}return;}
+  const step=bfsNext(z.x,z.y,target.x,target.y);if(step){z.x=step.x;z.y=step.y;}
+ });
+ // Damage only on a new overlap after the cooldown.
+ zombies.forEach(z=>{if(same(z,player)&&now-player.lastDamage>800){player.lastDamage=now;player.health=Math.max(0,player.health-20);damageFlash=350;setMessage("A zombie hit you! -20 health.");if(player.health<=0)endGame("lose","Your health reached zero.");}});
+ updateUI();
+}
+function endGame(result,text){
+ if(state==="win"||state==="lose")return;state=result;closePuzzle();$("overlay").style.display="flex";$("overlayTitle").textContent=result==="win"?"You made it out!":"Escape failed";$("overlayText").textContent=text+" Final score: "+score+". Time remaining: "+String(Math.floor(timeLeft/60)).padStart(2,"0")+":"+String(Math.ceil(timeLeft%60)).padStart(2,"0")+".";
+ $("startBtn").textContent="Play Again";$("pauseBtn").disabled=true;updateUI();
+}
+function startGame(){
+ player.x=1;player.y=1;player.health=100;player.lastDamage=0;player.lastMove=0;
+ energy.forEach(o=>o.got=false);supplies.forEach(o=>o.got=false);clue.got=false;safe.unlocked=false;
+ zombies[0].x=9;zombies[0].y=4;zombies[1].x=15;zombies[1].y=6;zombies[2].x=5;zombies[2].y=10;zombies.forEach(z=>{z.pi=0;z.stepAt=0;});
+ state="playing";timeLeft=180;score=0;selected=0;medkit=false;decoy=false;medUsed=false;decoyUsed=false;puzzleAttempts=3;puzzleInput=[];panelLocked=false;lure=null;puzzleOpen=false;closePuzzle();
+ $("overlay").style.display="none";$("objectiveTip").textContent="Explore the streets. The clue is marked with a note icon.";setMessage("Find all items and the clue. Avoid the zombies.");updateUI();lastSecond=performance.now();
+}
+function togglePause(){if(state==="playing"&&!puzzleOpen){state="paused";$("overlay").style.display="flex";$("overlayTitle").textContent="Game paused";$("overlayText").textContent="Take a moment to plan your next route. Press Resume when ready."; $("startBtn").textContent="Resume";updateUI();}else if(state==="paused"){state="playing";$("overlay").style.display="none";updateUI();lastSecond=performance.now();}}
+function frame(now){
+ const dt=Math.min((now-lastFrame)/1000,.05);lastFrame=now;
+ if(state==="playing"&&!puzzleOpen){
+  timeLeft=Math.max(0,timeLeft-dt);
+  if(timeLeft<=0)endGame("lose","Time ran out before you reached the safe house.");
+  zombieUpdate(now);
+  if(damageFlash>0)damageFlash=Math.max(0,damageFlash-dt*1000);
+  if(Math.floor(now/250)!==Math.floor((now-dt*1000)/250))updateUI();
+ }
+ draw();requestAnimationFrame(frame);
+}
+window.addEventListener("keydown",e=>{
+ const k=e.key.toLowerCase();
+ if(["arrowup","arrowdown","arrowleft","arrowright"," "].includes(k))e.preventDefault();
+ if(k==="p"){togglePause();return;}
+ if(k==="e"){openPuzzle();return;}
+ if(state!=="playing"||puzzleOpen)return;
+ if(k==="1"){selected=1;updateUI();setMessage("Medkit selected.");return;}
+ if(k==="2"){selected=2;updateUI();setMessage("Distraction device selected.");return;}
+ if(k===" "){useTool();return;}
+ const now=performance.now();
+ if(k==="arrowup")movePlayer(0,-1,now);
+ if(k==="arrowdown")movePlayer(0,1,now);
+ if(k==="arrowleft")movePlayer(-1,0,now);
+ if(k==="arrowright")movePlayer(1,0,now);
+});
+$("startBtn").addEventListener("click",()=>{if(state==="paused"){togglePause();return;}startGame();});
+$("pauseBtn").addEventListener("click",togglePause);
+$("restartBtn").addEventListener("click",()=>{if(state==="start"){startGame();return;}startGame();});
+document.querySelectorAll(".symbols button").forEach(btn=>btn.addEventListener("click",()=>{if(!puzzleOpen||puzzleInput.length>=4)return;puzzleInput.push(btn.dataset.symbol);$("sequence").textContent=puzzleInput.join(" ");}));
+$("submitPuzzle").addEventListener("click",submitPuzzle);
+$("clearPuzzle").addEventListener("click",()=>{puzzleInput=[];$("sequence").textContent="_ _ _ _";});
+canvas.addEventListener("click",()=>{if(state==="playing"&&same(player,panel))openPuzzle();});
+updateUI();draw();requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
